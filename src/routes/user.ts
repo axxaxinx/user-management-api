@@ -1,31 +1,32 @@
-// src/routes/user.ts
+import { Router, Request, Response } from "express";
+import { listUsers, getUserById } from "../user.service";
 
-import express, { Request, Response } from 'express';
+const router = Router();
 
-const router = express.Router();
-
-// Mock user data (replace with a database in a real application)
-const users = [
-  { id: 1, name: 'Alice' },
-  { id: 2, name: 'Bob' },
-  { id: 3, name: 'Carol' },
-];
-
-// User Listing (GET /users)
-router.get('/', (req: Request, res: Response) => {
-  res.json(users);
+// List all users
+router.get("/", async (req: Request, res: Response) => {
+    try {
+        const users = await listUsers();
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
-// User Retrieval (GET /users/:id)
-router.get('/:id', (req: Request, res: Response) => {
-  const userId = parseInt(req.params.id);
-  const user = users.find((u) => u.id === userId);
+// Retrieve a user by ID
+router.get("/:id", async (req: Request, res: Response) => {
+    const userId = parseInt(req.params.id);
 
-  if (!user) {
-    return res.status(404).json({ message: 'User not found' });
-  }
+    if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+    }
 
-  res.json(user);
+    try {
+        const user = await getUserById(userId);
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(404).json({ error: error.message });
+    }
 });
 
 export default router;
