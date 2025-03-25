@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { listUsers, getUserById, UserCreation } from "../routes/user.service";
+import { listUsers, getUserById, UserCreation, deleteUser } from "../routes/user.service";
 
 const router = Router();
 
@@ -26,7 +26,7 @@ router.get("/:id", async (req: Request, res: Response) => {
         const user = await getUserById(userId);
         res.status(200).json(user);
     } catch (error) {
-        res.status(404).json({ error:error});
+        res.status(404).json({ error:'User not found' });
     }
 });
 //Create a new user
@@ -57,4 +57,14 @@ router.post("/", async (req: Request, res: Response) => {
       return
   }
 });
+
+router.delete('/:id', async (req: Request, res: Response) => {
+    try {
+      const result = await deleteUser (Number(req.params.id));
+      res.status(200).json(result);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Deletion Failed";
+      res.status(404).json({ error: message });
+    }
+    })
 export default router;

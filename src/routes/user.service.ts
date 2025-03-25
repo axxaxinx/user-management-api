@@ -47,4 +47,27 @@ export const UserCreation = async (firstName: string, lastName: string, email: s
 
 
 
-    };
+};
+
+//Delete a user
+export const deleteUser = async (id: number) => {
+    const userRepository = AppDataSource.getRepository(User);
+
+    //Check if user exists
+    const user = await userRepository.findOne({where: {id}});
+    if (!user){
+        throw new Error("User not found");
+    }
+    //Delete user
+    const result = await userRepository.delete(id);
+
+    if (result.affected === 0) {
+        throw new Error('Failed to delete user')
+    }
+
+    return {
+        success: true,
+        message: 'User deleted successfully',
+        deletedUser: user 
+    }
+};
