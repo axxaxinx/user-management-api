@@ -1,31 +1,32 @@
-// src/routes/user.ts
+import { Router } from "express";
+import { Request, Response } from "express";
+import { getRepository } from "typeorm";
+import { User } from "../entities/User";
 
-import express, { Request, Response } from 'express';
+const router = Router();
 
-const router = express.Router();
+router.post("/", async (req: Request, res: Response) => {
+    const { firstName, lastName, email } = req.body;
 
-// Mock user data (replace with a database in a real application)
-const users = [
-  { id: 1, name: 'Alice' },
-  { id: 2, name: 'Bob' },
-  { id: 3, name: 'Carol' },
-];
+    // Validate request body
+    if (!firstName || !lastName || !email) {
+        return res.status(400).json({
+            message: "Missing required fields: firstName, lastName, and email are required."
+        });
+    }
 
-// User Listing (GET /users)
-router.get('/', (req: Request, res: Response) => {
-  res.json(users);
+    try {
+        const userRepository = getRepository(User);
+        const newUser = userRepository.create(req.body);
+        const results = await userRepository.save(newUser);
+        return res.status(201).json(results);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Error creating user",
+            error: error instanceof Error ? error.message : "Unknown error"
+        });
+    }
 });
 
-// User Retrieval (GET /users/:id)
-router.get('/:id', (req: Request, res: Response) => {
-  const userId = parseInt(req.params.id);
-  const user = users.find((u) => u.id === userId);
-
-  if (!user) {
-    return res.status(404).json({ message: 'User not found' });
-  }
-
-  res.json(user);
-});
-
-export default router;
+// Use named export

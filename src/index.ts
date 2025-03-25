@@ -1,15 +1,8 @@
-// src/index.ts
+import "reflect-metadata";
+import { createConnection } from "typeorm";
+import express from "express";
 
-import express from 'express';
-import userRoutes from './routes/user';
-
-const app = express();
-const port = 3000;
-
-app.use(express.json()); // Add JSON parsing middleware
-
-app.use('/users', userRoutes);
-
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});
+createConnection().then(async connection => {
+  const app = express();
+  app.listen(3000, () => console.log("Server running on port 3000"));
+}).catch(error => console.log(error));
